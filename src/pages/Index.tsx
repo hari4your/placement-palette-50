@@ -1,11 +1,21 @@
 import { 
   Code, FileText, BookOpen, MessageSquare, 
   Briefcase, FileUser, Building2, HelpCircle,
-  Sparkles
+  Sparkles, Rocket
 } from 'lucide-react';
 import { CategoryCard } from '@/components/CategoryCard';
+import { ProgressTracker } from '@/components/ProgressTracker';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { CodingProfile, PDFResource, InterviewExperience, Project, HRQuestion, CompanyPrep } from '@/types/workspace';
+import { Button } from '@/components/ui/button';
+import {
+  sampleCodingProfiles,
+  samplePDFResources,
+  sampleInterviewExperiences,
+  sampleProjects,
+  sampleHRQuestions,
+  sampleCompanyPrep
+} from '@/data/sampleData';
 
 const categories = [
   {
@@ -75,12 +85,24 @@ const categories = [
 ];
 
 export default function Dashboard() {
-  const [codingProfiles] = useLocalStorage<CodingProfile[]>('codingProfiles', []);
-  const [pdfResources] = useLocalStorage<PDFResource[]>('pdfResources', []);
-  const [interviews] = useLocalStorage<InterviewExperience[]>('interviewExperiences', []);
-  const [projects] = useLocalStorage<Project[]>('projects', []);
-  const [hrQuestions] = useLocalStorage<HRQuestion[]>('hrQuestions', []);
-  const [companyPrep] = useLocalStorage<CompanyPrep[]>('companyPrep', []);
+  const [codingProfiles, setCodingProfiles] = useLocalStorage<CodingProfile[]>('codingProfiles', []);
+  const [pdfResources, setPdfResources] = useLocalStorage<PDFResource[]>('pdfResources', []);
+  const [interviews, setInterviews] = useLocalStorage<InterviewExperience[]>('interviewExperiences', []);
+  const [projects, setProjects] = useLocalStorage<Project[]>('projects', []);
+  const [hrQuestions, setHrQuestions] = useLocalStorage<HRQuestion[]>('hrQuestions', []);
+  const [companyPrep, setCompanyPrep] = useLocalStorage<CompanyPrep[]>('companyPrep', []);
+
+  const hasData = codingProfiles.length > 0 || pdfResources.length > 0 || interviews.length > 0 || 
+                  projects.length > 0 || hrQuestions.length > 0 || companyPrep.length > 0;
+
+  const loadSampleData = () => {
+    setCodingProfiles(sampleCodingProfiles);
+    setPdfResources(samplePDFResources);
+    setInterviews(sampleInterviewExperiences);
+    setProjects(sampleProjects);
+    setHrQuestions(sampleHRQuestions);
+    setCompanyPrep(sampleCompanyPrep);
+  };
 
   const getCounts = (key: string) => {
     switch(key) {
@@ -93,6 +115,14 @@ export default function Dashboard() {
       default: return 0;
     }
   };
+
+  const progressItems = [
+    { label: 'Coding Profiles', current: codingProfiles.length, target: 3, color: 'sage' },
+    { label: 'DSA Sheets', current: pdfResources.filter(p => p.category === 'dsa').length, target: 2, color: 'peach' },
+    { label: 'Projects', current: projects.length, target: 3, color: 'mint' },
+    { label: 'Interview Experiences', current: interviews.length, target: 2, color: 'sky' },
+    { label: 'HR Questions Prepared', current: hrQuestions.length, target: 5, color: 'rose' },
+  ];
 
   return (
     <div className="space-y-8">
@@ -109,6 +139,22 @@ export default function Dashboard() {
           Everything you need for your placement journey, organized in one beautiful space.
           Add resources, track progress, and ace your interviews.
         </p>
+        
+        {!hasData && (
+          <Button 
+            onClick={loadSampleData}
+            className="mt-4 animate-slide-up gap-2"
+            style={{ animationDelay: '150ms' }}
+          >
+            <Rocket className="w-4 h-4" />
+            Load Sample Data
+          </Button>
+        )}
+      </div>
+
+      {/* Progress Tracker */}
+      <div className="animate-fade-in" style={{ animationDelay: '150ms' }}>
+        <ProgressTracker items={progressItems} />
       </div>
 
       {/* Quick Stats */}
